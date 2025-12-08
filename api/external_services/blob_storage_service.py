@@ -4,15 +4,14 @@ from azure.core.exceptions import ResourceNotFoundError
 
 
 class BlobService:
-    def __init__(self, account_name: str, container_name: str, client_id: str | None = None) -> None:
-        account_url = f"https://{account_name}.blob.core.windows.net"
+    def __init__(self, storage_account_uri: str, container_name: str, client_id: str | None = None) -> None:
         if client_id:
             credential = DefaultAzureCredential(managed_identity_client_id=client_id)
         else:
             credential = DefaultAzureCredential()
 
         self.blob_service_client: BlobServiceClient = \
-            BlobServiceClient(account_url, credential=credential)
+            BlobServiceClient(storage_account_uri, credential=credential)
         self.container_client: ContainerClient = \
             self.blob_service_client.get_container_client(container_name)
 

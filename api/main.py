@@ -4,14 +4,14 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from api.routers import file_contents_router
+from api.routers import file_contents_router, internal_router
 from api.external_services.blob_storage_service import BlobService
-from api.env import ACCOUNT_NAME, CLIENT_ID, STORAGE_CONTAINER_NAME, CONFIG_BLOB_NAME
+from api.env import STORAGE_ACCOUNT_URI, CLIENT_ID, STORAGE_CONTAINER_NAME, CONFIG_BLOB_NAME
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    blob_service = BlobService(ACCOUNT_NAME, STORAGE_CONTAINER_NAME, CLIENT_ID)
+    blob_service = BlobService(STORAGE_ACCOUNT_URI, STORAGE_CONTAINER_NAME, CLIENT_ID)
     app.state.blob_service = blob_service
     app.state.config_file_data = blob_service.download_blob(CONFIG_BLOB_NAME).decode("utf-8")
     yield
@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(file_contents_router.router)
+app.include_router(internal_router.router)
 
 
 @app.exception_handler(Exception)
