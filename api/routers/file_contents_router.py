@@ -12,7 +12,10 @@ router = APIRouter(
 
 @router.get("/", response_model=FileResponse)
 def get_config(request: Request) -> FileResponse:
+    print(f"Received GET request to /files/ with method: {request.method}, path: {request.url.path}")
     config_content = getattr(request.app.state, "config_file_data", "Config not loaded")
+    print(f"Current state: {request.app.state.__dict__}")
+
     return FileResponse(
         message="Hello World!",
         file_content=config_content
@@ -20,7 +23,8 @@ def get_config(request: Request) -> FileResponse:
 
 
 @router.get("/{filename}", response_model=FileResponse)
-def download(filename: str, service: BlobService = Depends(get_blob_service)):
+def download(filename: str, request: Request, service: BlobService = Depends(get_blob_service)):
+    print(f"Received GET request to /files/{{filename}} with method: {request.method}, path: {request.url.path}, filename: {filename}")
     file_content = service.download_blob(filename).decode("utf-8")
     return FileResponse(
         message=f"This is {filename} file",

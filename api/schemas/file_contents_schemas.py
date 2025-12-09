@@ -6,8 +6,9 @@ class FileResponse(BaseModel):
     file_content: str
 
 
-class UpdateConfigReqest(BaseModel):
+class UpdateConfigRequest(BaseModel):
     new_config_file_content: str
+
 
 class UpdateConfigResponse(BaseModel):
     status: str
