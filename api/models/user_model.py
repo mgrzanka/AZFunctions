@@ -1,9 +1,19 @@
-from typing import Annotated
-from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import Field, SQLModel
 
 
-class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class UserBase(SQLModel):
     name: str = Field(index=True)
     age: int | None = Field(default=None, index=True)
+
+
+class User(UserBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+
+class UserPublic(UserBase):
+    id: int
+
+
+class UserUpdate(UserBase):
+    name: str | None = None # type: ignore
+    age: int | None = None

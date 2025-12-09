@@ -6,6 +6,7 @@ from typing import AsyncGenerator
 
 from api.routers import file_contents_router, internal_router
 from api.external_services.blob_storage_service import BlobService
+from api.database import create_db_and_tables
 from api.env import STORAGE_ACCOUNT_URI, CLIENT_ID, STORAGE_CONTAINER_NAME, CONFIG_BLOB_NAME
 
 
@@ -14,6 +15,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     blob_service = BlobService(STORAGE_ACCOUNT_URI, STORAGE_CONTAINER_NAME, CLIENT_ID)
     app.state.blob_service = blob_service
     app.state.config_file_data = blob_service.download_blob(CONFIG_BLOB_NAME).decode("utf-8")
+    create_db_and_tables()
     yield
     blob_service.close()
 

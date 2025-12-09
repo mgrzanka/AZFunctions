@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, Body
+from fastapi import APIRouter, Request, Depends
 import logging
 
 from api.schemas.file_contents_schemas import UpdateConfigRequest, UpdateConfigResponse
@@ -7,12 +7,13 @@ from api.dependencies import validate_internal_secret
 
 router = APIRouter(
     prefix="/_internal",
-    tags=["internal"],
+    tags=["Internal"],
     dependencies=[Depends(validate_internal_secret)]
 )
 
+
 @router.post("/config_update", response_model=UpdateConfigResponse)
-async def update_config_webhook(request: Request, new_config: UpdateConfigRequest = Body(...)):
+async def update_config_webhook(request: Request, new_config: UpdateConfigRequest):
     logging.info(f"Received POST request to /_internal/config_update with method: {request.method}, path: {request.url.path}")
     try:
         if new_config.new_config_file_content:

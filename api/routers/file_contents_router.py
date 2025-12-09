@@ -7,7 +7,7 @@ from api.external_services.blob_storage_service import BlobService
 
 router = APIRouter(
     prefix="/files",
-    tags=["files"],
+    tags=["Files"],
 )
 
 @router.get("/", response_model=FileResponse)
