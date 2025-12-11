@@ -1,13 +1,15 @@
 import azure.functions as func
 from azure.functions.decorators import BlobSource
 import logging
-import requests
 
 from api import app
-from api.env import STORAGE_CONTAINER_NAME, CONFIG_BLOB_NAME, API_URI, INTERNAL_SECRET
+from api.external_services.blob_storage_service import create_blob_service
+from api.config.envs import STORAGE_CONTAINER_NAME, CONFIG_BLOB_NAME, QUERY_BLOB_NAME
+from api.config.BlobHolderService import BlobHolderService
 
 
 app = func.AsgiFunctionApp(app=app, http_auth_level=func.AuthLevel.ANONYMOUS)
+blob_holder_service = BlobHolderService()
 
 
 @app.function_name(name="config_file_update_trigger")
@@ -19,13 +21,22 @@ def handle_config_file_update(config_file: func.InputStream):
    new_config_file_content = config_file.read().decode("utf-8")
 
    try:
-      response = requests.post(
-         url=f"{API_URI}/_internal/config_update",
-         headers={"Content-Type": "application/json", "X-Internal-Secret": INTERNAL_SECRET},
-         json={"new_config_file_content": new_config_file_content},
-      )
-      response.raise_for_status()
-      logging.info(f"Config file update body: {response.json()}")
+      blob_holder_service.update_blob_content(CONFIG_BLOB_NAME, new_config_file_content)
+      logging.info("Updated config file")
+   except Exception as e:
+      logging.error(f"Error while updating config file after blob trigger: {e}")
 
-   except requests.exceptions.RequestException as e:
-      logging.error(f"Error while changing config file: {e}")
+
+@app.function_name(name="query_file_update_time_trigger")
+@app.timer_trigger(schedule="30 * * * * *", 
+                   arg_name="functiontimer",
+                   run_on_startup=False) 
+def test_function(functiontimer: func.TimerRequest) -> None:
+   blob_service = create_blob_service()
+
+   try:
+      updated_config_file_content = blob_service.download_blob(QUERY_BLOB_NAME).decode('utf-8')
+      blob_holder_service.update_blob_content(QUERY_BLOB_NAME, updated_config_file_content)
+      logging.info("Updated query file after timer trigger")
+   except Exception as e:
+      logging.error(f"Error while updating query file after timer trigger: {e}")

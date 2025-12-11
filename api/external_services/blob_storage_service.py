@@ -2,6 +2,12 @@ from azure.storage.blob import BlobServiceClient, ContainerClient, StorageStream
 from azure.identity import DefaultAzureCredential
 from azure.core.exceptions import ResourceNotFoundError
 
+from api.config.envs import STORAGE_ACCOUNT_URI, CLIENT_ID, STORAGE_CONTAINER_NAME
+
+
+def create_blob_service() -> 'BlobService':
+    return BlobService(STORAGE_ACCOUNT_URI, STORAGE_CONTAINER_NAME, CLIENT_ID)
+
 
 class BlobService:
     def __init__(self, storage_account_uri: str, container_name: str, client_id: str | None = None) -> None:
@@ -17,10 +23,8 @@ class BlobService:
 
     def download_blob(self, blob_name: str) -> bytes:
         try:
-            print("Dowloading config file...")
             blob_stream: StorageStreamDownloader = self.container_client.download_blob(blob_name)
             blob_data: bytes = blob_stream.readall()
-            print("Config file dowloaded...")
             return blob_data
         except ResourceNotFoundError as e:
             print("Non-existing blob file")

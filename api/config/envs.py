@@ -19,9 +19,13 @@ CONFIG_BLOB_NAME: str = os.getenv("CONFIG_BLOB_NAME") or ""
 if not CONFIG_BLOB_NAME:
     raise Exception("No CONFIG_BLOB_NAME")
 
-API_URI: str = os.getenv("API_URI") or ""
-if not API_URI:
-    raise Exception("No API_URI")
+QUERY_BLOB_NAME: str = os.getenv("QUERY_BLOB_NAME") or ""
+if not QUERY_BLOB_NAME:
+    raise Exception("No QUERY_BLOB_NAME")
+
+DATABASE_CONNECTION_STRING: str = os.getenv("DATABASE_CONNECTION_STRING") or ""
+if not DATABASE_CONNECTION_STRING:
+    raise Exception("No DATABASE_CONNECTION_STRING")
 
 account_name: str = os.getenv("AzureWebJobsStorage__accountName") or ""
 if not account_name:

@@ -1,12 +1,11 @@
 from sqlmodel import create_engine, SQLModel, Session
 from typing import Generator
 
+from api.config.envs import DATABASE_CONNECTION_STRING
+from api.models import User, Item, Purchase
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-connect_args = {"check_same_thread": False}
 
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(DATABASE_CONNECTION_STRING)
 
 
 def create_db_and_tables():

@@ -1,5 +1,6 @@
 .vscode
 .python-version
+.python_packages
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

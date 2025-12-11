@@ -1,17 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 from typing import Annotated
+import logging
 
 from api.models.user_model import UserPublic, UserBase, User, UserUpdate
 from api.database import get_session
+from api.dependencies import validate_internal_secret
+from api.config.BlobHolderService import BlobHolderService
+from api.config.envs import QUERY_BLOB_NAME
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+blob_holder_service = BlobHolderService()
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
+
+
+@router.get("/custom-query",
+            response_model=list[UserPublic] | UserPublic,
+            dependencies=[Depends(validate_internal_secret)])
+def perform_custom_query_from_storage(db_session: SessionDep):
+    query_content = blob_holder_service.get_blob_content(QUERY_BLOB_NAME)
+    print(f"Reading QUERY: {query_content}")
+
+    query = text(query_content)
+
+    try:
+        query_result = db_session.connection().execute(query).fetchall()
+    except Exception as e:
+        logging.error(f"There was issue while executing your query: {e}")
+        raise e
+
+    return query_result
+
 
 @router.get("/{user_id}", response_model=UserPublic)
 def get_user_by_id(user_id: str, db_session: SessionDep):
@@ -25,8 +50,8 @@ def get_user_by_id(user_id: str, db_session: SessionDep):
 def get_all_users(db_session: SessionDep,
                   offset: int = 0,
                   limit: Annotated[int, Query(le=100)] = 100):
-    heroes = db_session.exec(select(User).offset(offset).limit(limit)).all()
-    return heroes
+    users = db_session.exec(select(User).offset(offset).limit(limit)).all()
+    return users
 
 
 @router.post("/", response_model=UserPublic)

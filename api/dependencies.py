@@ -3,7 +3,7 @@ from fastapi import Request, Security, HTTPException
 from fastapi.security import APIKeyHeader
 import secrets
 
-from api.env import INTERNAL_SECRET
+from api.config.envs import INTERNAL_SECRET
 
 
 def validate_internal_secret(api_key: str = Security(APIKeyHeader(name="X-Internal-Secret"))):
