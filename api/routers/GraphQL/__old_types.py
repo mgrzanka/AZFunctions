@@ -172,3 +172,77 @@ class GeneralStatistics:
         )
         total_earned = db_session.exec(query).one_or_none()
         return float(total_earned) if total_earned else 0.0
+
+############################# ----
+# import strawberry
+# from sqlalchemy.sql.selectable import Select
+# import typing
+# from sqlmodel import SQLModel, select
+
+# from api.routers.GraphQL.metaclasses.base_metaclass import BaseTypesMetaclass, AgregateTypeMetaclass, QueryWrapper
+# from api.models.user_model import User as UserModel
+# from api.models.item_model import Item as ItemModel
+# from api.models.purchase_model import Purchase as PurchaseModel
+
+
+# @strawberry.type
+# class GroupKey:
+#     name: str
+#     value: str
+
+
+# # USER
+# @strawberry.type
+# class User(metaclass=BaseTypesMetaclass):
+#     model = UserModel
+
+
+# @strawberry.type
+# class UserAggregations(metaclass=AgregateTypeMetaclass):
+#     model = UserModel
+
+
+# @strawberry.type
+# class UserGroupResult:
+#     _keys: strawberry.Private[dict]
+#     _query_wrapper: strawberry.Private[QueryWrapper]
+
+#     def __init__(self, keys: dict, query_wrapper: QueryWrapper):
+#         self._keys = keys
+#         self._query_wrapper = query_wrapper
+
+#     @strawberry.field
+#     def keys(self) -> typing.List[GroupKey]:
+#         return [GroupKey(name=k, value=str(v)) for k, v in self._keys.items()]
+    
+#     @strawberry.field
+#     def nodes(self, info: strawberry.Info) -> typing.List[User]:
+#         db_session = info.context['db_session']
+#         results = db_session.exec(self._query_wrapper.query).all()
+#         return results
+
+#     @strawberry.field
+#     def aggregate(self) -> UserAggregations:
+#         return self._query_wrapper # type: ignore
+    
+
+# # ITEM
+# @strawberry.type
+# class Item(metaclass=BaseTypesMetaclass):
+#     model = ItemModel
+
+
+# @strawberry.type
+# class AggregateItem(metaclass=AgregateTypeMetaclass):
+#     model = ItemModel
+
+
+# # PURCHASE
+# @strawberry.type
+# class Purchase(metaclass=BaseTypesMetaclass):
+#     model = PurchaseModel
+
+
+# @strawberry.type
+# class AggregatePurchase(metaclass=AgregateTypeMetaclass):
+#     model = PurchaseModel
